@@ -28,6 +28,7 @@ header {
   min-width: 100%;
   transform: translate(-50%, -50%);
   object-fit: cover;
+  z-index: 0;
 }
 
 .video-container::after {
@@ -35,11 +36,12 @@ header {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.30);
+  z-index: 1;
 }
 
 .content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   top: 50%;
   text-align: center;
   color: white;
@@ -160,13 +162,11 @@ footer {
   line-height: 1;
 }
 
-/* empty stars */
 .stars::before {
   content: "★★★★★";
   color: var(--star-color);
 }
 
-/* filled stars (supports half values like 3.8) */
 .stars::after {
   content: "★★★★★";
   color: var(--star-filled);
