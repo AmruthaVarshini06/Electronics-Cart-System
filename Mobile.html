@@ -253,6 +253,20 @@
                 <button class="button">Add To Cart</button>
             </article>
         </section>
+        <script>
+            const video = document.querySelector(".video-container video");
+
+            if (video) {
+                video.muted = true;
+
+                video.addEventListener("loadedmetadata", () => {
+                video.currentTime = 0.1;
+                video.play().catch(() => {
+                    document.addEventListener("click", () => video.play(), { once: true });
+                });
+                });
+            }
+        </script>
         <footer>&copy; copyright</footer>
     </body>
 </html>
