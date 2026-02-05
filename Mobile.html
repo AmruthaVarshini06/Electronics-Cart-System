@@ -5,100 +5,28 @@
         <link rel="stylesheet" href="css/page.css">
     </head>
     <body>
-        <header>Discover the Latest Smartphones</header>
-                            
-                <section class="video-container">
-                    <video autoplay muted loop playsinline preload="auto">
-                        <source src="Videos/samsung-iphone.mp4" type="video/mp4">
-                    </video>
-                </section>
-                
-        <section  class="products">
-            <article class="product-card">
-            <a href="product-items/Apple-iPhone-14.html">
-                <div class="product-image-box">
-                    <img src="Photos/Apple iPhone 14 Starlight.webp" alt="iPhone 14" loading = "lazy"/>
-                </div>
-                <h2>Apple iPhone 14 (Starlight, 128 GB)</h2>
-                <div class="price">
-                    <span class="current">₹54,900</span>
-                    <span class="old">₹62,999</span>
-                    <span class="discount">13% off</span>
-                </div>
-                </a>
-                <button class="button">Add To Cart</button>
-            </article>
-            <article class="product-card">
-                <a href="product-items/Apple-iPhone-16.html">
-                <div class="product-image-box">
-                    <img src="Photos/Apple iPhone 16 Teal.webp" alt="iPhone 16" loading = "lazy"/>
-                </div>
-                <h2>Apple iPhone 16 (Teal, 256 GB)</h2>
-                    <div class="price">
-                        <span class="current">₹74,900</span>
-                        <span class="old">₹79,900</span>
-                        <span class="discount">6% off</span>
-                    </div>
-                </a>
-                <button class="button">Add To Cart</button>
-            </article>
-            <article class="product-card">
-                <a href="product-items/Samsung-galaxy.html">
-                <div class="product-image-box" >
-                    <img src="Photos/Samsung Galaxy A35 5G Awesome Navy Blue.webp" alt="Samsung A35"loading = "lazy"/>
-                </div>
-                <h2>Samsung Galaxy A35 5G (Awesome Navy, 256 GB)</h2>
-                <div class="price">
-                        <span class="current">₹20,999</span>
-                        <span class="old">₹36,999</span>
-                        <span class="discount">43% off</span>
-                </div>
-                </a>
-                <button class="button">Add To Cart</button>
-            </article>
-            <article class="product-card">
-                <a href="product-items/CMF-By-Nothing.html">
-                <div class="product-image-box">
-                    <img src="Photos/CMF by Nothing Phone 2 Pro Black.webp" alt="CMF"loading = "lazy"/>
-                </div>
-                <h2>CMF by Nothing Phone 2 Pro (Black, 128 GB)</h2>
-                    <div class="price">
-                        <span class="current">₹18,999</span>
-                        <span class="old">₹22,999</span>
-                        <span class="discount">17% off</span>
-                    </div>
-                </a>
-                <button class="button">Add To Cart</button>
-            </article>
-            <article class="product-card">
-                <a href="product-items/Vivo-T4-Lite.html">
-                <div class="product-image-box" >
-                    <img src="Photos/Vivo T4 Lite 5G.webp" alt="Vivo T4 Lite"loading = "lazy"/>
-                </div>
-                <h2>vivo T4 Lite 5G Charger in the Box (Titanium Gold, 128 GB)</h2>
-                    <div class="price">
-                        <span class="current">₹12,999</span>
-                        <span class="old">₹14,999</span>
-                        <span class="discount">13% off</span>
-                    </div>
-                </a>
-                <button class="button">Add To Cart</button>
-            </article>
-        </section>
-        <script>
-            const video = document.querySelector(".video-container video");
 
-            if (video) {
-                video.muted = true;
+        <div class="page-content">
+            <header>Discover the Latest Smartphones</header>
+            <nav class="main-nav">
+                <a href="index.html">Home</a>
+                <a href="Laptop.html">Laptops</a>
+                <a href="Mobile.html">Mobiles</a>
+                <a href="SmartWatch.html">Smart Watches</a>
+                <a href="Headphones-EarPods.html">Headphones & EarPods</a>
+            </nav>    
 
-                video.addEventListener("loadedmetadata", () => {
-                video.currentTime = 0.1;
-                video.play().catch(() => {
-                    document.addEventListener("click", () => video.play(), { once: true });
-                });
-                });
-            }
-        </script>
-        <footer>&copy; copyright</footer>
+            <section class="video-container">
+                <video autoplay muted loop playsinline preload="auto">
+                    <source src="Videos/mobile-promo.mp4" type="video/mp4">
+                </video>
+            </section>
+
+            <section  class="products" id="productsContainer" data-category="Mobiles"></section>
+            <script src="JavaScript/products.js"></script>
+            <script src="JavaScript/render-products.js"></script>
+            <script src="JavaScript/video.js"></script>
+        </div>
+        <footer>&copy; 2026 Smart Store</footer>
     </body>
 </html>

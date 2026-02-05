@@ -1,1 +1,75 @@
-  <p>hi</p>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Smart Store</title>
+        <link rel="stylesheet" href="css/page.css">
+    </head>
+    <body>
+
+      <div class="page-content">
+        <header class="site-header"> 
+          <div class="logo">
+            <a href="index.html">
+              <img src="Photos/logo.png" alt="Smart Store Logo">
+            </a>
+          </div>
+          <div class="header-search">
+            <div class="search-box">
+              <input type="text" id="searchInput" placeholder="Search products (iPhone, MacBook, AirPods...)" onkeyup="searchProducts()">
+              <ul id="searchResults" class="search-results"></ul>
+            </div>
+          </div>
+        </header>
+        <nav class="main-nav">
+            <a href="index.html">Home</a>
+            <a href="Laptop.html">Laptops</a>
+            <a href="Mobile.html">Mobiles</a>
+            <a href="SmartWatch.html">Smart Watches</a>
+            <a href="Headphones-EarPods.html">Headphones & EarPods</a>
+        </nav>
+        <section class="home-hero">
+          <h1>Your One-Stop Smart Electronics Store</h1>
+          <p>Laptops, Mobiles, Smart Watches & Audio — all in one place.</p>
+          <a href="#categories" class="hero-btn">Explore Categories</a>
+        </section>
+
+        <section id="categories" class="products">
+            <article class="product-card">
+                <a href="Laptop.html">
+                    <div class="product-image-box">
+                        <img src="Photos/Apple MacBook AIR M2.webp" alt="Laptops" loading="lazy">
+                    </div>
+                    <h2>Laptops</h2>
+                </a>
+            </article>
+            <article class="product-card">
+                <a href="Mobile.html">
+                    <div class="product-image-box">
+                        <img src="Photos/Apple iPhone 14 Starlight.webp" alt="Mobiles" loading="lazy">
+                    </div>
+                    <h2>Mobiles</h2>
+                </a>
+            </article>
+            <article class="product-card">
+                <a href="SmartWatch.html">
+                    <div class="product-image-box">
+                        <img src="Photos/Apple Watch Series 10.webp" alt="Smart Watches" loading="lazy">
+                    </div>
+                    <h2>Smart Watches</h2>
+                </a>
+            </article>
+            <article class="product-card">
+                <a href="Headphones-EarPods.html">
+                    <div class="product-image-box">
+                        <img src="Photos/Apple AirPods.webp" alt="Headphones & EarPods" loading="lazy">
+                    </div>
+                    <h2>Headphones & EarPods</h2>
+                </a>
+            </article>
+        </section>
+      </div>
+      <script src="JavaScript/products.js"></script>
+      <script src="JavaScript/search.js"></script>
+    <footer> &copy; 2026 Smart Store </footer>
+  </body>
+</html>
