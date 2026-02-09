@@ -265,6 +265,18 @@ hr {
   color: #555;
 }
 
+.main-navi {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  position: relative;
+  z-index: 100;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 40px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
 .main-nav {
   display: flex;
   flex: 1;
@@ -453,4 +465,58 @@ footer {
   font-size: 22px;
   font-weight: 700;
   color: #111;
+}
+
+/* ===== PROFILE SECTION ===== */
+
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-icon {
+  cursor: pointer;
+  font-size: 22px;
+  padding: 8px;
+  border-radius: 50%;
+  background: #f1f1f1;
+  transition: background 0.2s ease;
+}
+
+.profile-icon:hover {
+  background: #e0e0e0;
+}
+
+.profile-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 42px;
+  width: 220px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  padding: 14px;
+  z-index: 9999;
+}
+
+.profile-dropdown p {
+  font-size: 14px;
+  margin-bottom: 10px;
+  word-break: break-all;
+  color: #333;
+}
+
+.profile-dropdown button {
+  width: 100%;
+  padding: 8px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.profile-dropdown button:hover {
+  background: #333;
 }
