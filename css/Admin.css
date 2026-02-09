@@ -1,0 +1,121 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f4f6f8, #e9ecef);
+}
+
+.admin-header {
+    background: linear-gradient(135deg, #111, #222);
+    color: #fff;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-header button {
+    background: #fff;
+    color: #111;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.admin-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 40px;
+}
+
+.admin-card {
+    background: #fff;
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.admin-card:hover {
+    transform: translateY(-5px);
+}
+
+.admin-form-container {
+    width: 420px;
+    background: #fff;
+    padding: 35px;
+    text-align: center;
+    border-radius: 14px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+}
+
+
+.admin-form-container input {
+    padding: 12px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 340px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.admin-form-container input:focus {
+    outline: none;
+    border-color: #111;
+    box-shadow: 0 0 0 2px rgba(34, 139, 34, 0.2);
+}
+
+.admin-form-container p {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.admin-form-container button {
+    padding: 14px;
+    border-radius: 10px;
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+    max-width: 340px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #1f7a4d, #145c38);
+    color: #fff;
+    border: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-form-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(31,122,77,0.35);
+    background: #145a32;
+}
+
+.admin-form-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.admin-form-container button {
+    grid-column: span 2;
+}
+
+.admin-form-container h3 {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.admin-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 20px;
+}

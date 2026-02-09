@@ -6,15 +6,17 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
 
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    const validUser = users.find(
-        user => user.email === email && user.password === password
+    const user = users.find(
+        u => u.email === email && u.password === password && u.role === "user"
     );
 
-    if (validUser) {
-        alert("Login successful!");
-        localStorage.setItem("loggedInUser", email);
-        window.location.href = "index.html";
-    } else {
-        alert("Invalid email or password. Please register first.");
+    if (!user) {
+        alert("Invalid user credentials");
+        return;
     }
+
+    localStorage.setItem("loggedInUser", user.email);
+    localStorage.setItem("role", "user");
+
+    window.location.href = "index.html";
 });

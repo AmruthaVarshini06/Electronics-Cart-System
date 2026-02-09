@@ -1,22 +1,28 @@
-document.getElementById("signupForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
+function signup(role) {
     const email = document.getElementById("signupEmail").value;
     const password = document.getElementById("signupPassword").value;
 
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    // check if email already exists
-    const userExists = users.some(user => user.email === email);
-
-    if (userExists) {
-        alert("User already registered. Please login.");
+    if (!email || !password) {
+        alert("Fill all fields");
         return;
     }
 
-    users.push({ email, password });
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    if (users.some(u => u.email === email)) {
+        alert("Account already exists");
+        return;
+    }
+
+    users.push({ email, password, role });
     localStorage.setItem("users", JSON.stringify(users));
 
-    alert("Registration successful!");
-    window.location.href = "login.html";
-});
+    localStorage.setItem("loggedInUser", email);
+    localStorage.setItem("role", role);
+
+    if (role === "admin") {
+        window.location.href = "Admin-Home.html";
+    } else {
+        window.location.href = "index.html";
+    }
+}

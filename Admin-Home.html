@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | Smart Store</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<script>
+if (
+    !localStorage.getItem("loggedInUser") ||
+    localStorage.getItem("role") !== "admin"
+) {
+    window.location.href = "Login.html";
+}
+</script>
+
+<header class="admin-header">
+    <h1>Smart Store – Admin Panel</h1>
+    <div class="admin-info">
+        <span id="adminEmail"></span>
+        <button onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<main class="admin-dashboard">
+
+    <div class="admin-card" onclick="location.href='Add-Product.html'">
+        ➕ Add Product
+    </div>
+
+    <div class="admin-card" onclick="location.href='Manage-Products.html'">
+        📦 Manage Products
+    </div>
+
+    <div class="admin-card" onclick="location.href='index.html'">
+        🛍 View Store
+    </div>
+
+</main>
+
+<script src="JavaScript/Admin-Home.js"></script>
+</body>
+</html>
