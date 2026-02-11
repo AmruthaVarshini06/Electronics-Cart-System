@@ -22,8 +22,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="profile-dropdown" id="profileDropdown">
                     <p id="profileEmail"></p>
                     <hr>
+                    <a href="User-Info.html" class="profile-link">Customer Profile</a>
                     <button id="logoutBtn">Logout</button>
                 </div>
+
             </div>
         </nav>
 
