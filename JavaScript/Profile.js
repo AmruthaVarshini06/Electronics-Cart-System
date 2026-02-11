@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     const loggedInUser = localStorage.getItem("loggedInUser");
+
     if (!loggedInUser) {
         window.location.href = "login.html";
         return;
@@ -11,27 +12,31 @@ document.addEventListener("DOMContentLoaded", function () {
         emailEl.innerText = loggedInUser;
     }
 
-    window.toggleProfile = function () {
-        const dropdown = document.getElementById("profileDropdown");
-        if (!dropdown) return;
+    const profileIcon = document.getElementById("profileIcon");
+    const dropdown = document.getElementById("profileDropdown");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-        dropdown.style.display =
-            dropdown.style.display === "block" ? "none" : "block";
-    };
+    if (profileIcon && dropdown) {
+        profileIcon.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+    }
 
-    window.logout = function () {
-        localStorage.removeItem("loggedInUser");
-        window.location.href = "login.html";
-    };
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "Login.html";
+        });
+    }
 
     document.addEventListener("click", function (e) {
-        const profile = document.querySelector(".profile-wrapper");
-        const dropdown = document.getElementById("profileDropdown");
+        const profileWrapper = document.querySelector(".profile-wrapper");
 
-        if (!profile || !dropdown) return;
+        if (!profileWrapper || !dropdown) return;
 
-        if (!profile.contains(e.target)) {
-            dropdown.style.display = "none";
+        if (!profileWrapper.contains(e.target)) {
+            dropdown.classList.remove("show");
         }
     });
 

@@ -11,19 +11,18 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="header-search">
                 <div class="search-box">
                     <input type="text" id="searchInput"
-                        placeholder="Search products (iPhone, MacBook, AirPods...)"
-                        onkeyup="searchProducts()">
+                        placeholder="Search products (iPhone, MacBook, AirPods...)">
                     <ul id="searchResults" class="search-results"></ul>
                 </div>
             </div>
 
             <div class="profile-wrapper">
-                <div class="profile-icon" onclick="toggleProfile()">👤</div>
+                <div class="profile-icon" id="profileIcon">👤</div>
 
                 <div class="profile-dropdown" id="profileDropdown">
                     <p id="profileEmail"></p>
                     <hr>
-                    <button onclick="logout()">Logout</button>
+                    <button id="logoutBtn">Logout</button>
                 </div>
             </div>
         </nav>
@@ -37,4 +36,28 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
     document.body.insertAdjacentHTML("afterbegin", navbarHTML);
+
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("keyup", searchProducts);
 });
+
+function searchProducts() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    const resultsContainer = document.getElementById("searchResults");
+
+    const products = ["iphone", "macbook", "airpods", "samsung", "lenovo"];
+
+    resultsContainer.innerHTML = "";
+
+    if (input === "") return;
+
+    const filtered = products.filter(product =>
+        product.toLowerCase().includes(input)
+    );
+
+    filtered.forEach(product => {
+        const li = document.createElement("li");
+        li.textContent = product;
+        resultsContainer.appendChild(li);
+    });
+}
