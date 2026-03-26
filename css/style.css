@@ -153,3 +153,65 @@ body {
 .main-nav a:hover {
   color: #1f7a4d;
 }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-icon a {
+  text-decoration: none;
+  font-weight: bold;
+  color: black;
+}
+
+.cart-icon a:hover {
+  color: #007bff;
+}
+
+.checkout-container {
+  width: 350px;
+  margin: 80px auto;
+  padding: 25px;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.checkout-container h1 {
+  margin-bottom: 20px;
+}
+
+.checkout-container input,
+.checkout-container textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.checkout-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: orange;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.checkout-container button:hover {
+  background-color: darkorange;
+  transform: scale(1.03);
+}
+
+
+.checkout-container h2 {
+  margin: 20px 0;
+  font-size: 22px;
+}

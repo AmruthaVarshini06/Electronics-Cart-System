@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Your Cart</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/cart.css">
+
+</head>
+
+<body>
+
+<section class="cart-section">
+
+<h1>Your Cart 🛒</h1>
+
+<a href="index.html" class="button back-btn">← Continue Shopping</a>
+
+<div id="cart-items"></div>
+
+<div class="cart-summary">
+
+<h2>Total: <span id="cart-total">₹0</span></h2>
+
+<button class="checkout-btn" onclick="goToCheckout()">Proceed to Checkout</button>
+
+</div>
+
+</section>
+
+<script>
+function goToCheckout() {
+  window.location.href = "checkout.html";
+}
+</script>
+<script src="JavaScript/cart.js"></script>
+
+</body>
+</html>

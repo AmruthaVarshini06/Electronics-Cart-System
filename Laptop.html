@@ -8,18 +8,20 @@
         
         <div class="page-content">
             <header>Discover the Latest Laptops</header>
-            <script src="JavaScript/Navbar.js"></script>
+            <script type="module" src="JavaScript/Navbar.js"></script>
 
             <section class="video-container">
                 <video autoplay muted loop playsinline preload="auto">
                     <source src="Videos/laptop-promo.mp4" type="video/mp4">
                 </video>
             </section>
-                
+            
+            <div id="product-container"></div>
             <section  class="products" id="productsContainer" data-category="Laptops"></section>
             <script src="JavaScript/products.js"></script>
             <script src="JavaScript/render-products.js"></script>
             <script src="JavaScript/video.js"></script>
+            <script src="JavaScript/cart.js"></script>
         </div>
         <footer>&copy; 2026 Smart Store</footer>
     </body>

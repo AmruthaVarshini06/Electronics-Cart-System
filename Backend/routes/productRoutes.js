@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const Product = require("../models/Product");
 
-router.get("/", async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
-});
+const {
+  getProducts,
+  addProduct,
+  deleteProduct
+} = require("../controllers/productController");
 
-router.get("/:slug", async (req, res) => {
-  const product = await Product.findOne({ slug: req.params.slug });
-  res.json(product);
-});
+router.get("/", getProducts);
+
+router.post("/", addProduct);
+
+router.delete("/:id", deleteProduct);
 
 module.exports = router;

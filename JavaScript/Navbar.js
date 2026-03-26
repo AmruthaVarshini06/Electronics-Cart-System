@@ -1,4 +1,18 @@
-document.addEventListener("DOMContentLoaded", function () {
+import { searchProducts } from "./search.js";
+
+const CONFIG = {
+  CART_API: "http://localhost:5000/api/cart"
+};
+
+function debounce(func, delay){
+  let timer;
+  return function(...args){
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+document.addEventListener("DOMContentLoaded", () => {
 
     const navbarHTML = `
         <nav class="main-navi">
@@ -16,16 +30,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
             </div>
 
-            <div class="profile-wrapper">
-                <div class="profile-icon" id="profileIcon">👤</div>
-
-                <div class="profile-dropdown" id="profileDropdown">
-                    <p id="profileEmail"></p>
-                    <hr>
-                    <a href="User-Info.html" class="profile-link">Customer Profile</a>
-                    <button id="logoutBtn">Logout</button>
+            <div class="nav-right">
+                <div class="cart-icon">
+                    <a href="cart.html">
+                        🛒 Cart <span class="cart-count">0</span>
+                    </a>
                 </div>
 
+                <div class="profile-wrapper">
+                    <div class="profile-icon" id="profileIcon">👤</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <p id="profileEmail"></p>
+                        <hr>
+                        <a href="User-Info.html" class="profile-link">Customer Profile</a>
+                        <button id="logoutBtn">Logout</button>
+                    </div>
+
+                </div>
             </div>
         </nav>
 
@@ -37,29 +59,75 @@ document.addEventListener("DOMContentLoaded", function () {
         </nav>
     `;
 
-    document.body.insertAdjacentHTML("afterbegin", navbarHTML);
+    if(!document.querySelector(".main-navi")){
+        document.body.insertAdjacentHTML("afterbegin", navbarHTML);
+    }
 
     const searchInput = document.getElementById("searchInput");
-    searchInput.addEventListener("keyup", searchProducts);
+
+    if(searchInput){
+        searchInput.addEventListener("input", debounce(searchProducts, 300));
+    }
+
+    const profileIcon = document.getElementById("profileIcon");
+    const profileDropdown = document.getElementById("profileDropdown");
+
+    if(profileIcon && profileDropdown){
+
+      profileIcon.addEventListener("click", () => {
+          profileDropdown.style.display =
+              profileDropdown.style.display === "block" ? "none" : "block";
+      });
+
+      document.addEventListener("click", (e) => {
+          if (!profileIcon.contains(e.target) && !profileDropdown.contains(e.target)) {
+              profileDropdown.style.display = "none";
+          }
+      });
+
+    }
+
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if(logoutBtn){
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        sessionStorage.clear();
+        window.location.href = "login.html";
+    });
+    }
+
+    updateCartCount();
+
 });
 
-function searchProducts() {
-    const input = document.getElementById("searchInput").value.toLowerCase();
-    const resultsContainer = document.getElementById("searchResults");
+async function updateCartCount(){
 
-    const products = ["iphone", "macbook", "airpods", "samsung", "lenovo"];
+  try{
 
-    resultsContainer.innerHTML = "";
+    const res = await fetch(CONFIG.CART_API);
 
-    if (input === "") return;
+    if(!res.ok){
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
 
-    const filtered = products.filter(product =>
-        product.toLowerCase().includes(input)
-    );
+    const items = await res.json();
 
-    filtered.forEach(product => {
-        const li = document.createElement("li");
-        li.textContent = product;
-        resultsContainer.appendChild(li);
-    });
+    const cartCount = Array.isArray(items)
+      ? items.reduce((sum,item)=> sum + item.quantity ,0)
+      : 0;
+
+    const cartElement = document.querySelector(".cart-count");
+
+    if(cartElement){
+      cartElement.textContent = cartCount;
+    }
+
+  }
+  catch(error){
+
+    console.error("Error loading cart count:", error);
+
+  }
+
 }

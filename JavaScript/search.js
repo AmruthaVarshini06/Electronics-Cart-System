@@ -1,4 +1,4 @@
-function searchProducts() {
+export function searchProducts() {
   const input = document.getElementById("searchInput").value.toLowerCase();
   const resultsBox = document.getElementById("searchResults");
 

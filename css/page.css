@@ -536,3 +536,19 @@ footer {
 .profile-dropdown button:hover {
   background: #333;
 }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-icon a {
+  text-decoration: none;
+  font-weight: bold;
+  color: black;
+}
+
+.cart-icon a:hover {
+  color: #007bff;
+}

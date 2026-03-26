@@ -1,59 +1,73 @@
-const container = document.getElementById("productsContainer");
+document.addEventListener("DOMContentLoaded", async () => {
 
-// Read category from HTML attribute
-const category = container.dataset.category;
+  const container = document.getElementById("productsContainer");
+  if (!container) return;
 
-Object.values(products).forEach(product => {
-  if (product.category !== category) return;
+  const category = container.dataset.category;
 
-  const article = document.createElement("article");
-  article.className = "product-card";
+  try {
 
-  article.innerHTML = `
-    <a href="${product.page}">
-      <div class="product-image-box">
-        <img src="Photos/${getImageName(product.page)}"
-             alt="${product.name}"
-             loading="lazy">
-      </div>
-      <h2>${product.name}</h2>
-      <div class="price">
-        <span class="current">₹${product.price.toLocaleString()}</span>
-      </div>
-    </a>
-    <button class="button">Add To Cart</button>
-  `;
+    const res = await fetch("http://localhost:5000/api/products");
+    const products = await res.json();
 
-  container.appendChild(article);
+    container.innerHTML = "";
+
+    products.forEach(product => {
+
+      if (product.category !== category) return;
+
+      const article = document.createElement("article");
+      article.className = "product-card";
+
+      article.innerHTML = `
+        <div class="product-image-box">
+          <a href="product-items/${product.page}">
+            <img src="Photos/${product.image}" alt="${product.name}" loading="lazy">
+          </a>
+        </div>
+
+        <h2>
+          <a href="product-items/${product.page}">
+            ${product.name}
+          </a>
+        </h2>
+
+        <div class="price">
+          <span class="current">₹${Number(product.price).toLocaleString()}</span>
+        </div>
+
+        <button 
+          class="button add-to-cart"
+          data-id="${product._id}"
+          data-name="${product.name}"
+          data-price="${product.price}"
+          data-image="Photos/${product.image}">
+          Add To Cart
+        </button>
+      `;
+
+      container.appendChild(article);
+
+    });
+
+  } catch (error) {
+
+    console.error("Failed to load products:", error);
+
+  }
+
+  container.addEventListener("click", (e) => {
+
+    const button = e.target.closest(".add-to-cart");
+    if (!button) return;
+
+    const productId = button.dataset.id;
+    const name = button.dataset.name;
+    const price = button.dataset.price;
+    const image = button.dataset.image;
+
+    addToCart(productId, name, price, image);
+
+  });
+
 });
-
-// Image mapping (temporary – OK for now)
-function getImageName(page) {
-  const map = {
-    "product-items/Apple-MacBook-M2.html": "Apple MacBook AIR M2.webp",
-    "product-items/Dell-13th-gen.html": "DELL 13th Gen.webp",
-    "product-items/Dell-15-AMD.html": "DELL 15 AMD.webp",
-    "product-items/HP-15-AMD.html": "HP 15 AMD.webp",
-    "product-items/Lenovo-Chrome-Book.html": "Lenovo Chrome Book.webp",
-
-    "product-items/Apple-iPhone-14.html": "Apple iPhone 14 Starlight.webp",
-    "product-items/Apple-iPhone-16.html": "Apple iPhone 16 Teal.webp",
-    "product-items/Samsung-galaxy.html": "Samsung Galaxy A35 5G Awesome Navy Blue.webp",
-    "product-items/CMF-By-Nothing.html": "CMF by Nothing Phone 2 Pro Black.webp",
-    "product-items/Vivo-T4-Lite.html": "Vivo T4 Lite 5G.webp",
-
-    "product-items/Apple-Watch-10.html": "Apple Watch Series 10.webp",
-    "product-items/Boat-Smartwatch.html": "Boat SmartWatch.webp",
-    "product-items/Fire-Boltt-Smartwatch.html": "Fire Boltt.webp",
-    "product-items/Noise-Crew-Smartwatch.html": "Noise Crew.webp",
-    "product-items/Fastrack-Smartwatch.html": "Fastrack.webp",
-
-    "product-items/Apple-AirPods.html": "Apple AirPods.webp",
-    "product-items/Boat-AirPods.html": "Boat AirPods.webp",
-    "product-items/Noise-AirPods.html": "Noise AirPods.webp",
-    "product-items/One-Roar.html": "One Roar.webp",
-    "product-items/Zebronics.html": "Zebronics.webp"
-  };
-
-  return map[page] || "placeholder.webp";
-}
