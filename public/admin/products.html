@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Products – Admin</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="logo">⚙️ Smart<span>Store</span></div>
+    <nav class="admin-nav">
+      <a href="/admin/dashboard.html">📊 Dashboard</a>
+      <a href="/admin/products.html" class="active">🛍 Products</a>
+      <a href="/admin/orders.html">📦 Orders</a>
+      <a href="/index.html" target="_blank">🌐 View Store</a>
+      <a href="#" onclick="adminLogout()">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1>🛍 Product Management</h1>
+      <button class="btn btn-primary" onclick="openAddModal()">+ Add New Product</button>
+    </div>
+
+    <!-- Filters -->
+    <div style="background:#fff;border-radius:12px;padding:1rem 1.5rem;margin-bottom:1.5rem;box-shadow:var(--shadow);display:flex;gap:1rem;flex-wrap:wrap;align-items:center">
+      <input type="text" id="filter-search" placeholder="🔍 Search products…" style="padding:0.5rem 0.9rem;border:2px solid var(--border);border-radius:8px;font-size:0.85rem;flex:1;min-width:200px" oninput="filterProducts()"/>
+      <select id="filter-cat" style="padding:0.5rem 0.9rem;border:2px solid var(--border);border-radius:8px;font-size:0.85rem" onchange="filterProducts()">
+        <option value="">All Categories</option>
+        <option value="mobiles">Mobiles</option>
+        <option value="laptops">Laptops</option>
+        <option value="smartwatches">Smartwatches</option>
+        <option value="audio">Audio</option>
+      </select>
+    </div>
+
+    <div class="admin-table-card">
+      <div id="products-table"><div class="loader"><div class="spinner"></div></div></div>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Add New Product</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <form id="product-form">
+      <div class="form-row">
+        <div class="form-group"><label>Product Name *</label><input type="text" id="p-name" required placeholder="e.g. iPhone 15 Pro"/></div>
+        <div class="form-group"><label>Brand *</label><input type="text" id="p-brand" required placeholder="e.g. Apple"/></div>
+      </div>
+      <div class="form-group"><label>Description *</label><textarea id="p-desc" rows="2" required placeholder="Product description…" style="width:100%;padding:0.75rem;border:2px solid var(--border);border-radius:10px;font-size:0.9rem;resize:vertical"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Category *</label>
+          <select id="p-cat" required>
+            <option value="">Select category</option>
+            <option value="mobiles">📱 Mobiles</option>
+            <option value="laptops">💻 Laptops</option>
+            <option value="smartwatches">⌚ Smartwatches</option>
+            <option value="audio">🎧 Audio</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Stock *</label><input type="number" id="p-stock" min="0" required placeholder="10"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Price (₹) *</label><input type="number" id="p-price" min="0" required placeholder="29999"/></div>
+        <div class="form-group"><label>Original Price (₹)</label><input type="number" id="p-original" min="0" placeholder="34999"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Rating (0-5)</label><input type="number" id="p-rating" step="0.1" min="0" max="5" placeholder="4.5"/></div>
+        <div class="form-group"><label>Review Count</label><input type="number" id="p-reviews" min="0" placeholder="100"/></div>
+      </div>
+      <div class="form-group"><label>Image URL</label><input type="url" id="p-image" placeholder="https://…"/></div>
+      <div class="form-group"><label>Features (one per line)</label><textarea id="p-features" rows="3" placeholder="Feature 1&#10;Feature 2&#10;Feature 3" style="width:100%;padding:0.75rem;border:2px solid var(--border);border-radius:10px;font-size:0.9rem;resize:vertical"></textarea></div>
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem">
+        <input type="checkbox" id="p-featured" style="width:18px;height:18px"/>
+        <label for="p-featured" style="font-size:0.85rem;font-weight:600">Mark as Featured Product</label>
+      </div>
+      <div id="modal-msg" class="form-error" style="display:none"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%" id="save-btn">💾 Save Product</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+  let allProducts = [];
+  let editingId = null;
+  function adminLogout() { logout(); window.location.href = '/admin/login.html'; }
+
+  async function loadProducts() {
+    if (!isLoggedIn() || !isAdmin()) { window.location.href = '/admin/login.html'; return; }
+    try {
+      allProducts = await apiFetch('/products');
+      renderTable(allProducts);
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  function filterProducts() {
+    const s = document.getElementById('filter-search').value.toLowerCase();
+    const c = document.getElementById('filter-cat').value;
+    const filtered = allProducts.filter(p =>
+      (!c || p.category === c) &&
+      (!s || p.name.toLowerCase().includes(s) || p.brand.toLowerCase().includes(s))
+    );
+    renderTable(filtered);
+  }
+
+  function renderTable(products) {
+    document.getElementById('products-table').innerHTML = products.length ? `
+      <div style="padding:0.8rem 1.5rem;border-bottom:1px solid var(--border);font-size:0.82rem;color:var(--text-light)">${products.length} products</div>
+      <div style="overflow-x:auto">
+      <table class="admin-table">
+        <thead><tr><th></th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Rating</th><th>Featured</th><th>Actions</th></tr></thead>
+        <tbody>${products.map(p => `
+          <tr>
+            <td>${p.image ? `<img src="${p.image}" class="product-thumb" onerror="this.style.display='none'">` : '<div style="width:50px;height:40px;background:#f3f4f6;border-radius:8px;display:flex;align-items:center;justify-content:center">🛒</div>'}</td>
+            <td><div style="font-weight:600;font-size:0.88rem;max-width:180px">${p.name}</div><div style="font-size:0.75rem;color:var(--primary)">${p.brand}</div></td>
+            <td><span class="badge badge-info">${p.category}</span></td>
+            <td><div style="font-weight:700">${formatPrice(p.price)}</div>${p.originalPrice ? `<div style="font-size:0.75rem;color:var(--text-light);text-decoration:line-through">${formatPrice(p.originalPrice)}</div>` : ''}</td>
+            <td><span class="badge ${p.stock > 5 ? 'badge-success' : p.stock > 0 ? 'badge-warning' : 'badge-danger'}">${p.stock}</span></td>
+            <td>⭐ ${p.rating} <span style="font-size:0.73rem;color:var(--text-light)">(${p.reviewCount})</span></td>
+            <td>${p.isFeatured ? '✅' : '—'}</td>
+            <td>
+              <button class="btn-sm btn-edit" onclick="openEditModal('${p._id}')">✏️ Edit</button>
+              <button class="btn-sm btn-delete" onclick="deleteProduct('${p._id}','${p.name.replace(/'/g,'')}')" style="margin-top:4px">🗑 Del</button>
+            </td>
+          </tr>`).join('')}</tbody>
+      </table></div>` :
+      '<div style="padding:3rem;text-align:center;color:var(--text-light)">No products found.</div>';
+  }
+
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modal-title').textContent = '+ Add New Product';
+    document.getElementById('product-form').reset();
+    document.getElementById('modal-msg').style.display = 'none';
+    document.getElementById('save-btn').textContent = '💾 Save Product';
+    document.getElementById('product-modal').classList.add('open');
+  }
+
+  function openEditModal(id) {
+    const p = allProducts.find(x => x._id === id);
+    if (!p) return;
+    editingId = id;
+    document.getElementById('modal-title').textContent = '✏️ Edit Product';
+    document.getElementById('p-name').value = p.name;
+    document.getElementById('p-brand').value = p.brand;
+    document.getElementById('p-desc').value = p.description;
+    document.getElementById('p-cat').value = p.category;
+    document.getElementById('p-price').value = p.price;
+    document.getElementById('p-original').value = p.originalPrice || '';
+    document.getElementById('p-stock').value = p.stock;
+    document.getElementById('p-rating').value = p.rating;
+    document.getElementById('p-reviews').value = p.reviewCount;
+    document.getElementById('p-image').value = p.image || '';
+    document.getElementById('p-features').value = (p.features || []).join('\n');
+    document.getElementById('p-featured').checked = p.isFeatured;
+    document.getElementById('modal-msg').style.display = 'none';
+    document.getElementById('save-btn').textContent = '💾 Update Product';
+    document.getElementById('product-modal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('product-modal').classList.remove('open'); }
+
+  document.getElementById('product-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('save-btn');
+    const msg = document.getElementById('modal-msg');
+    btn.disabled = true; btn.textContent = 'Saving…'; msg.style.display = 'none';
+    const features = document.getElementById('p-features').value.trim().split('\n').filter(f => f.trim());
+    const data = {
+      name: document.getElementById('p-name').value,
+      brand: document.getElementById('p-brand').value,
+      description: document.getElementById('p-desc').value,
+      category: document.getElementById('p-cat').value,
+      price: Number(document.getElementById('p-price').value),
+      originalPrice: Number(document.getElementById('p-original').value) || undefined,
+      stock: Number(document.getElementById('p-stock').value),
+      rating: Number(document.getElementById('p-rating').value) || 4.0,
+      reviewCount: Number(document.getElementById('p-reviews').value) || 0,
+      image: document.getElementById('p-image').value,
+      features,
+      isFeatured: document.getElementById('p-featured').checked
+    };
+    try {
+      if (editingId) {
+        await apiFetch(`/products/${editingId}`, { method: 'PUT', body: JSON.stringify(data) });
+        showToast('Product updated! ✅', 'success');
+      } else {
+        await apiFetch('/products', { method: 'POST', body: JSON.stringify(data) });
+        showToast('Product added! ✅', 'success');
+      }
+      closeModal();
+      loadProducts();
+    } catch (err) {
+      msg.textContent = err.message; msg.style.display = 'block';
+    }
+    btn.disabled = false; btn.textContent = editingId ? '💾 Update Product' : '💾 Save Product';
+  });
+
+  async function deleteProduct(id, name) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    try {
+      await apiFetch(`/products/${id}`, { method: 'DELETE' });
+      showToast('Product deleted', 'info');
+      loadProducts();
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  document.getElementById('product-modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  loadProducts();
+</script>
+</body>
+</html>

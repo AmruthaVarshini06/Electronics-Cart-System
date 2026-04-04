@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard – Smart Store</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="logo">⚙️ Smart<span>Store</span><br><small style="font-size:0.7rem;color:rgba(255,255,255,0.5)">Admin Panel</small></div>
+    <nav class="admin-nav">
+      <a href="/admin/dashboard.html" class="active">📊 Dashboard</a>
+      <a href="/admin/products.html">🛍 Products</a>
+      <a href="/admin/orders.html">📦 Orders</a>
+      <a href="/index.html" target="_blank">🌐 View Store</a>
+      <a href="#" onclick="adminLogout()">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1>📊 Dashboard</h1>
+      <span style="color:var(--text-light);font-size:0.85rem" id="welcome-msg"></span>
+    </div>
+
+    <!-- STATS -->
+    <div class="stat-cards" id="stat-cards">
+      <div class="loader"><div class="spinner"></div></div>
+    </div>
+
+    <!-- RECENT ORDERS -->
+    <div class="admin-table-card" style="margin-bottom:2rem">
+      <div class="admin-table-header">
+        <h3>📦 Recent Orders</h3>
+        <a href="/admin/orders.html" style="font-size:0.82rem;color:var(--primary)">View All →</a>
+      </div>
+      <div id="recent-orders"><div class="loader"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- TOP PRODUCTS -->
+    <div class="admin-table-card">
+      <div class="admin-table-header">
+        <h3>🛍 Product Overview</h3>
+        <a href="/admin/products.html" style="font-size:0.82rem;color:var(--primary)">Manage →</a>
+      </div>
+      <div id="top-products"><div class="loader"><div class="spinner"></div></div></div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+  function adminLogout() { logout(); window.location.href = '/admin/login.html'; }
+
+  async function loadDashboard() {
+    if (!isLoggedIn() || !isAdmin()) { window.location.href = '/admin/login.html'; return; }
+    document.getElementById('welcome-msg').textContent = `Welcome, ${getUser().name}`;
+
+    try {
+      const [products, orders] = await Promise.all([apiFetch('/products'), apiFetch('/orders')]);
+      const revenue = orders.reduce((s, o) => s + o.totalAmount, 0);
+      const pending = orders.filter(o => o.status === 'pending').length;
+
+      document.getElementById('stat-cards').innerHTML = `
+        <div class="stat-card"><div class="stat-icon blue">🛍</div><div><div class="stat-value">${products.length}</div><div class="stat-label">Total Products</div></div></div>
+        <div class="stat-card"><div class="stat-icon green">💰</div><div><div class="stat-value">${formatPrice(revenue)}</div><div class="stat-label">Total Revenue</div></div></div>
+        <div class="stat-card"><div class="stat-icon purple">📦</div><div><div class="stat-value">${orders.length}</div><div class="stat-label">Total Orders</div></div></div>
+        <div class="stat-card"><div class="stat-icon orange">⏳</div><div><div class="stat-value">${pending}</div><div class="stat-label">Pending Orders</div></div></div>`;
+
+      const statusColor = { pending:'warning', confirmed:'info', shipped:'info', delivered:'success', cancelled:'danger' };
+      const recent = orders.slice(0, 8);
+      document.getElementById('recent-orders').innerHTML = recent.length ? `
+        <table class="admin-table">
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>${recent.map(o => `
+            <tr>
+              <td style="font-family:monospace;font-size:0.78rem">${o._id.slice(-8)}</td>
+              <td>${o.user?.name || 'N/A'}<br><span style="font-size:0.75rem;color:var(--text-light)">${o.user?.email || ''}</span></td>
+              <td>${o.items.length} item(s)</td>
+              <td style="font-weight:700">${formatPrice(o.totalAmount)}</td>
+              <td><span class="badge badge-${statusColor[o.status]}">${o.status}</span></td>
+              <td style="font-size:0.78rem;color:var(--text-light)">${new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+            </tr>`).join('')}</tbody>
+        </table>` : '<div style="padding:2rem;text-align:center;color:var(--text-light)">No orders yet</div>';
+
+      document.getElementById('top-products').innerHTML = `
+        <table class="admin-table">
+          <thead><tr><th></th><th>Product</th><th>Category</th><th>Price</th><th>Rating</th><th>Stock</th></tr></thead>
+          <tbody>${products.slice(0,6).map(p => `
+            <tr>
+              <td>${p.image ? `<img src="${p.image}" class="product-thumb" onerror="this.style.display='none'">` : ''}</td>
+              <td><div style="font-weight:600;font-size:0.88rem">${p.name}</div><div style="font-size:0.75rem;color:var(--primary)">${p.brand}</div></td>
+              <td><span class="badge badge-info">${p.category}</span></td>
+              <td style="font-weight:700">${formatPrice(p.price)}</td>
+              <td>⭐ ${p.rating}</td>
+              <td><span class="badge ${p.stock > 5 ? 'badge-success' : p.stock > 0 ? 'badge-warning' : 'badge-danger'}">${p.stock}</span></td>
+            </tr>`).join('')}</tbody>
+        </table>`;
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

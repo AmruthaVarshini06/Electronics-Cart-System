@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product – Smart Store</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/index.html" class="nav-logo">🛒 Smart<span>Store</span></a>
+    <div class="nav-search">
+      <input type="text" id="search-input" placeholder="Search products…"/>
+      <button id="search-btn">🔍</button>
+    </div>
+    <div class="nav-links">
+      <a href="/cart.html" class="nav-btn">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+      <div id="auth-links"></div>
+    </div>
+  </div>
+</nav>
+
+<div class="product-detail">
+  <div class="breadcrumb">
+    <a href="/index.html">Home</a> <span>›</span>
+    <span id="bc-category">Category</span> <span>›</span>
+    <span id="bc-name">Product</span>
+  </div>
+  <div id="product-container">
+    <div class="loader"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const productId = params.get('id');
+
+  async function loadProduct() {
+    const container = document.getElementById('product-container');
+    if (!productId) { container.innerHTML = '<div class="empty-state"><div class="icon">❌</div><h3>Product not found</h3></div>'; return; }
+    try {
+      const p = await apiFetch(`/products/${productId}`);
+      document.title = `${p.name} – Smart Store`;
+      document.getElementById('bc-category').textContent = p.category.charAt(0).toUpperCase() + p.category.slice(1);
+      document.getElementById('bc-name').textContent = p.name;
+      const discount = calcDiscount(p.price, p.originalPrice);
+      const catIcon = { mobiles: '📱', laptops: '💻', smartwatches: '⌚', audio: '🎧' }[p.category] || '🛒';
+
+      container.innerHTML = `
+        <div class="product-detail-card">
+          <div>
+            ${p.image
+              ? `<img src="${p.image}" alt="${p.name}" class="product-detail-img" onerror="this.outerHTML='<div class=product-img-placeholder style=height:380px;border-radius:16px>${catIcon}</div>'">`
+              : `<div class="product-img-placeholder" style="height:380px;border-radius:16px;font-size:5rem">${catIcon}</div>`}
+          </div>
+          <div class="product-detail-info">
+            <div class="brand">${p.brand}</div>
+            <h1>${p.name}</h1>
+            <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;">
+              <span style="color:#fbbf24;font-size:1.1rem">${renderStars(p.rating)}</span>
+              <span style="font-weight:700">${p.rating}</span>
+              <span style="color:var(--text-light);font-size:0.85rem">(${p.reviewCount} reviews)</span>
+            </div>
+            <div class="product-detail-price">${formatPrice(p.price)}</div>
+            ${p.originalPrice ? `<div class="product-detail-original">${formatPrice(p.originalPrice)} 
+              ${discount > 0 ? `<span style="color:var(--success);font-size:0.9rem;font-weight:700;margin-left:0.5rem">${discount}% OFF</span>` : ''}</div>` : ''}
+            <p style="color:var(--text-light);font-size:0.9rem;line-height:1.7;margin:1rem 0">${p.description}</p>
+            ${p.features && p.features.length ? `
+              <strong style="font-size:0.9rem">Key Features:</strong>
+              <ul class="feature-list">
+                ${p.features.map(f => `<li>${f}</li>`).join('')}
+              </ul>` : ''}
+            <div style="display:flex;align-items:center;gap:0.5rem;margin:0.8rem 0;font-size:0.85rem">
+              ${p.stock > 0
+                ? `<span style="color:var(--success);font-weight:700">✅ In Stock</span> (${p.stock} left)`
+                : '<span style="color:var(--danger);font-weight:700">❌ Out of Stock</span>'}
+            </div>
+            <div class="qty-control">
+              <span style="font-size:0.85rem;font-weight:600">Qty:</span>
+              <button class="qty-btn" onclick="changeQty(-1)">−</button>
+              <span class="qty-display" id="qty">1</span>
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <button class="btn-add-to-cart" onclick="addToCart('${p._id}','${p.name}')">
+              🛒 Add to Cart
+            </button>
+            <button onclick="buyNow('${p._id}','${p.name}')" style="width:100%;padding:0.9rem;margin-top:0.6rem;background:#fff;color:var(--primary);border:2px solid var(--primary);border-radius:var(--radius-sm);font-size:1rem;font-weight:700;transition:all 0.2s;" onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background='#fff'">
+              ⚡ Buy Now
+            </button>
+          </div>
+        </div>`;
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">😕</div><h3>Product not found</h3><p>${err.message}</p></div>`;
+    }
+  }
+
+  function changeQty(delta) {
+    const el = document.getElementById('qty');
+    let q = parseInt(el.textContent) + delta;
+    if (q < 1) q = 1;
+    if (q > 10) q = 10;
+    el.textContent = q;
+  }
+
+  async function addToCart(productId, name) {
+    if (!isLoggedIn()) { showToast('Please login to add items to cart', 'info'); window.location.href='/login.html'; return; }
+    const qty = parseInt(document.getElementById('qty').textContent);
+    try {
+      await apiFetch('/cart', { method: 'POST', body: JSON.stringify({ productId, quantity: qty }) });
+      showToast(`${name} added to cart! 🛒`, 'success');
+      updateCartCount();
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  async function buyNow(productId, name) {
+    if (!isLoggedIn()) { window.location.href = '/login.html'; return; }
+    const qty = parseInt(document.getElementById('qty').textContent);
+    try {
+      await apiFetch('/cart', { method: 'POST', body: JSON.stringify({ productId, quantity: qty }) });
+      window.location.href = '/checkout.html';
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  loadProduct();
+</script>
+</body>
+</html>

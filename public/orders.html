@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Orders – Smart Store</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/index.html" class="nav-logo">🛒 Smart<span>Store</span></a>
+    <div class="nav-links">
+      <a href="/cart.html" class="nav-btn">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+      <div id="auth-links"></div>
+    </div>
+  </div>
+</nav>
+
+<div style="max-width:900px;margin:2rem auto;padding:0 2rem;">
+  <div class="breadcrumb"><a href="/index.html">Home</a> <span>›</span> <span>My Orders</span></div>
+  <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:2rem;">📦 My Orders</h1>
+  <div id="orders-container"><div class="loader"><div class="spinner"></div></div></div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+  async function loadOrders() {
+    const container = document.getElementById('orders-container');
+    if (!isLoggedIn()) { window.location.href = '/login.html'; return; }
+    try {
+      const orders = await apiFetch('/orders/my');
+      if (!orders.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">📦</div><h3>No orders yet</h3><p>Place your first order today!</p><a href="/index.html" class="btn btn-primary">Start Shopping</a></div>`;
+        return;
+      }
+      const statusColor = { pending:'warning', confirmed:'info', shipped:'info', delivered:'success', cancelled:'danger' };
+      container.innerHTML = orders.map(o => `
+        <div style="background:#fff;border-radius:16px;padding:1.5rem;margin-bottom:1.2rem;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
+            <div>
+              <div style="font-size:0.8rem;color:var(--text-light)">Order ID</div>
+              <div style="font-size:0.85rem;font-weight:700;font-family:monospace">${o._id}</div>
+            </div>
+            <div style="text-align:right">
+              <span class="badge badge-${statusColor[o.status] || 'info'}" style="font-size:0.8rem">${o.status.toUpperCase()}</span>
+              <div style="font-size:0.78rem;color:var(--text-light);margin-top:0.3rem">${new Date(o.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:0.8rem">
+            ${o.items.map(item => `
+              <div style="display:flex;justify-content:space-between;font-size:0.88rem;padding:0.3rem 0">
+                <span>${item.name} × ${item.quantity}</span>
+                <span style="font-weight:700">${formatPrice(item.price * item.quantity)}</span>
+              </div>`).join('')}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--border);margin-top:0.8rem;padding-top:0.8rem;flex-wrap:wrap;gap:0.5rem">
+            <div style="font-size:0.82rem;color:var(--text-light)">💳 ${o.paymentMethod} | 📍 ${o.shippingAddress?.city || ''}</div>
+            <div style="font-size:1.05rem;font-weight:800;color:var(--primary)">Total: ${formatPrice(o.totalAmount)}</div>
+          </div>
+        </div>`).join('');
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">😕</div><h3>${err.message}</h3></div>`;
+    }
+  }
+  loadOrders();
+</script>
+</body>
+</html>

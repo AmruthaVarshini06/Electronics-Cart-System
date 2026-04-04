@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Store – Electronics</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/index.html" class="nav-logo">🛒 Smart<span>Store</span></a>
+    <div class="nav-search">
+      <input type="text" id="search-input" placeholder="Search phones, laptops, audio…"/>
+      <button id="search-btn">🔍</button>
+    </div>
+    <div class="nav-links">
+      <a href="/cart.html" class="nav-btn" style="position:relative">
+        🛒 Cart <span class="cart-badge" id="cart-count">0</span>
+      </a>
+      <div id="auth-links"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero-section">
+  <div class="hero-content">
+    <h1>Discover the Best<br/><span>Electronics & Gadgets</span></h1>
+    <p>Shop the latest mobiles, laptops, smartwatches, and audio devices at unbeatable prices.</p>
+    <div class="hero-btns">
+      <a href="#products" class="btn btn-primary">🛍 Shop Now</a>
+      <a href="/signup.html" class="btn btn-outline">Join Free</a>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<div class="categories-bar">
+  <div class="container">
+    <button class="cat-btn active" data-cat="all">🌐 All Products</button>
+    <button class="cat-btn" data-cat="mobiles">📱 Mobiles</button>
+    <button class="cat-btn" data-cat="laptops">💻 Laptops</button>
+    <button class="cat-btn" data-cat="smartwatches">⌚ Smartwatches</button>
+    <button class="cat-btn" data-cat="audio">🎧 Audio</button>
+  </div>
+</div>
+
+<!-- PRODUCTS SECTION -->
+<section class="section" id="products">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+      <div>
+        <div class="section-title" id="section-title">All Products</div>
+        <div class="section-subtitle" id="section-subtitle">Showing all available products</div>
+      </div>
+      <div style="display:flex;gap:0.6rem;align-items:center;">
+        <select id="sort-select" style="padding:0.5rem 0.9rem;border-radius:8px;border:2px solid #e5e7eb;font-size:0.85rem;cursor:pointer;">
+          <option value="newest">Newest First</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+    </div>
+    <div id="products-container">
+      <div class="loader"><div class="spinner"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:var(--dark);color:rgba(255,255,255,0.7);text-align:center;padding:2rem;margin-top:2rem;">
+  <div style="font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:0.5rem;">🛒 Smart<span style="color:var(--primary)">Store</span></div>
+  <p style="font-size:0.85rem;">© 2024 SmartStore. All rights reserved. | Electronics & Gadgets</p>
+</footer>
+
+<script src="/js/utils.js"></script>
+<script>
+  let allProducts = [];
+  let currentCategory = 'all';
+  let searchQuery = '';
+
+  async function loadProducts() {
+    const container = document.getElementById('products-container');
+    try {
+      const params = new URLSearchParams(window.location.search);
+      searchQuery = params.get('search') || '';
+      if (searchQuery) document.getElementById('search-input').value = searchQuery;
+
+      let url = '/products';
+      if (searchQuery) url += `?search=${encodeURIComponent(searchQuery)}`;
+      else if (currentCategory !== 'all') url += `?category=${currentCategory}`;
+
+      allProducts = await apiFetch(url);
+      sortAndRender();
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">😕</div><h3>Could not load products</h3><p>${err.message}</p></div>`;
+    }
+  }
+
+  function sortAndRender() {
+    const sort = document.getElementById('sort-select').value;
+    let list = [...allProducts];
+    if (sort === 'price-low') list.sort((a,b) => a.price - b.price);
+    else if (sort === 'price-high') list.sort((a,b) => b.price - a.price);
+    else if (sort === 'rating') list.sort((a,b) => b.rating - a.rating);
+    renderProducts(list);
+  }
+
+  function renderProducts(products) {
+    const container = document.getElementById('products-container');
+    if (!products.length) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><h3>No products found</h3><p>Try a different category or search term.</p></div>`;
+      return;
+    }
+    const catNames = { all: 'All Products', mobiles: '📱 Mobiles', laptops: '💻 Laptops', smartwatches: '⌚ Smartwatches', audio: '🎧 Audio' };
+    document.getElementById('section-title').textContent = searchQuery ? `Results for "${searchQuery}"` : catNames[currentCategory];
+    document.getElementById('section-subtitle').textContent = `${products.length} product${products.length !== 1 ? 's' : ''} found`;
+
+    container.innerHTML = `<div class="products-grid">${products.map(p => productCard(p)).join('')}</div>`;
+  }
+
+  function productCard(p) {
+    const discount = calcDiscount(p.price, p.originalPrice);
+    return `
+    <div class="product-card">
+      ${discount > 0 ? `<div class="product-badge">-${discount}% OFF</div>` : ''}
+      ${p.image
+        ? `<img src="${p.image}" alt="${p.name}" class="product-img" onclick="viewProduct('${p._id}')" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
+        : ''}
+      <div class="product-img-placeholder" style="${p.image ? 'display:none' : ''}" onclick="viewProduct('${p._id}')">
+        ${p.category === 'mobiles' ? '📱' : p.category === 'laptops' ? '💻' : p.category === 'smartwatches' ? '⌚' : '🎧'}
+      </div>
+      <div class="product-info">
+        <div class="product-brand">${p.brand}</div>
+        <div class="product-name" onclick="viewProduct('${p._id}')">${p.name}</div>
+        <div class="product-rating">
+          <span class="stars">${renderStars(p.rating)}</span>
+          <span class="rating-count">(${p.reviewCount})</span>
+        </div>
+        <div class="product-price">
+          <span class="price-current">${formatPrice(p.price)}</span>
+          ${p.originalPrice ? `<span class="price-original">${formatPrice(p.originalPrice)}</span>` : ''}
+          ${discount > 0 ? `<span class="price-discount">${discount}% off</span>` : ''}
+        </div>
+        <div class="product-actions">
+          <button class="btn-cart" onclick="addToCart('${p._id}','${p.name}')">🛒 Add to Cart</button>
+          <button class="btn-view" onclick="viewProduct('${p._id}')">View</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  async function addToCart(productId, name) {
+    if (!isLoggedIn()) { showToast('Please login to add items to cart', 'info'); window.location.href='/login.html'; return; }
+    try {
+      await apiFetch('/cart', { method: 'POST', body: JSON.stringify({ productId, quantity: 1 }) });
+      showToast(`${name} added to cart! 🛒`, 'success');
+      updateCartCount();
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  function viewProduct(id) { window.location.href = `/product.html?id=${id}`; }
+
+  // Category buttons
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.dataset.cat;
+      searchQuery = '';
+      history.replaceState(null, '', '/index.html');
+      loadProducts();
+    });
+  });
+
+  document.getElementById('sort-select').addEventListener('change', sortAndRender);
+
+  loadProducts();
+</script>
+</body>
+</html>
